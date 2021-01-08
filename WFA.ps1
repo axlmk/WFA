@@ -35,6 +35,29 @@ function Configure-Folder {
     }
 }
 
+function Get-ImageFormatIsh() {
+    Param (
+        [Parameter(Mandatory)]
+        [int]$width,
+        [Parameter(Mandatory)]
+        [int]$height
+    )
+
+    $eps = 30
+    $Wider = $height -lt ($width - $eps)
+    $Higher = $height -gt ($width + $eps)
+
+    if((-Not $Wider) -and (-Not $Higher)) {
+        return 'Square'
+    } elseif($Wider -and $Higher) {
+        Write-Host "daaaamn"
+    } elseif(-Not $Higher) {
+        return 'Landscape'
+    } else {
+        return 'Portrait'
+    }
+}
+
 function Get-RandomWallpaperUrl {
     $WebRespContent = (Invoke-WebRequest -Uri "https://artstation.com/random_project.json").Content
     $JsonResp = ConvertFrom-Json -InputObject $WebRespContent
