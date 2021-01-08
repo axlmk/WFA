@@ -23,10 +23,23 @@ function Write-Log {
     Add-Content $LogPath -Value "[ $(Get-Date -Format "yyyy/MM/dd HH:mm") ] $Message"
 }
 
+function Configure-Folder {
+    if(-Not $(Test-Path -Path $ImgFolderPath)) {
+        Write-Warning "The images folder doesn't exist and will therefore be created"
+        New-Item -ItemType "directory" -Path $ImgFolderPath > $null
+    }
+
+    if(-Not $(Test-Path -Path $LogPath)) {
+        Write-Warning "The log file doesn't exist and will therefore be created"
+        New-Item -ItemType "file" -Path $LogPath > $null
+    }
+}
+
 function Get-RandomWallpaperUrl {
     $WebRespContent = (Invoke-WebRequest -Uri "https://artstation.com/random_project.json").Content
-    Write-Log -Message 
     $JsonResp = ConvertFrom-Json -InputObject $WebRespContent
+    Write-Log "AUTHOR: $($JsonResp.user.permalink)"
+    Write-Log "IMAGE URL: $($JsonResp.assets[0].image_url)`n"
     $ImageUrl = $JsonResp.assets[0].image_url
     return $ImageUrl
 }
@@ -87,17 +100,6 @@ function Clean-ImageDirectory {
 }
 
 # Main function
-if(-Not $(Test-Path -Path $ImgFolderPath)) {
-    Write-Warning "The images folder doesn't exist and will therefore be created"
-    New-Item -ItemType "directory" -Path $ImgFolderPath > $null
-}
-
-if(-Not $(Test-Path -Path $LogPath)) {
-    Write-Warning "The log file doesn't exist and will therefore be created"
-    New-Item -ItemType "file" -Path $LogPath > $null
-}
-
-
 Clean-ImageDirectory
 for($i = 0; $i -lt $NumberOfImages; $i++) {
     $WallpaperUrl = Get-RandomWallpaperUrl
