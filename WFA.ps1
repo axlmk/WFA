@@ -1,9 +1,31 @@
+# Parameters
+Param(
+    [int]$NumberOfImages = 2
+)
+# Global action
 $ErrorActionPreference = "Stop"
-<#
-    Based on Artstation REST API
-#>
+
+# Parameters validity check
+if($NumberOfImages -le 0) {
+    throw "The NumberOfImages parameter must be greater than 0"
+}
+
+# Global variable
+$ImgFolderPath = "$PSScriptRoot/Images"
+$LogPath = "$PSScriptRoot/displayedImages.log"
+
+# Function
+function Write-Log {
+    Param(
+        [Parameter(Mandatory)]
+        [string]$Message
+    )
+    Add-Content $LogPath -Value "[ $(Get-Date -Format "yyyy/MM/dd HH:mm") ] $Message"
+}
+
 function Get-RandomWallpaperUrl {
     $WebRespContent = (Invoke-WebRequest -Uri "https://artstation.com/random_project.json").Content
+    Write-Log -Message 
     $JsonResp = ConvertFrom-Json -InputObject $WebRespContent
     $ImageUrl = $JsonResp.assets[0].image_url
     return $ImageUrl
@@ -39,13 +61,6 @@ function Install-Wallpaper {
         [string]$Path,
         [switch]$Remote
     )
-   
-    $ImgFolderPath = "$PSScriptRoot/Images"
-    Write-Host $ImgFolderPath
-    if(-Not $(Test-Path -Path $ImgFolderPath)) {
-        Write-Warning "The images folder doesn't exist and will therefore be created"
-        New-Item -ItemType "directory" -Path $ImgFolderPath > $null
-    }
 
     $RandomId = Get-Random -Minimum 1073741824
     $Name = Get-ImageName -Path $Path
@@ -64,5 +79,27 @@ function Install-Wallpaper {
 
 }
 
-$WallpaperUrl = Get-RandomWallpaperUrl
-Install-Wallpaper $WallpaperUrl -Remote
+function Clean-ImageDirectory {
+    [CmdletBinding()]
+    Param()
+    Remove-Item "$ImgFolderPath/*"
+
+}
+
+# Main function
+if(-Not $(Test-Path -Path $ImgFolderPath)) {
+    Write-Warning "The images folder doesn't exist and will therefore be created"
+    New-Item -ItemType "directory" -Path $ImgFolderPath > $null
+}
+
+if(-Not $(Test-Path -Path $LogPath)) {
+    Write-Warning "The log file doesn't exist and will therefore be created"
+    New-Item -ItemType "file" -Path $LogPath > $null
+}
+
+
+Clean-ImageDirectory
+for($i = 0; $i -lt $NumberOfImages; $i++) {
+    $WallpaperUrl = Get-RandomWallpaperUrl
+    Install-Wallpaper $WallpaperUrl -Remote
+}
