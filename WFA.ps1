@@ -11,9 +11,9 @@ if($NumberOfImages -le 0) {
 }
 
 # Global variable
-$ImgFolderPath = "$PSScriptRoot/Images"
-$LogPath = "$PSScriptRoot/displayedImages.log"
-$TmpFolderPath = "$PSScriptRoot/Temp"
+$ImgFolderPath = "$PSScriptRoot\Images"
+$LogPath = "$PSScriptRoot\displayedImages.log"
+$TmpFolderPath = "$PSScriptRoot\Temp"
 
 # Function
 function Write-Log {
@@ -67,6 +67,7 @@ function Get-RandomWallpaperUrl {
     $JsonResp = ConvertFrom-Json -InputObject $WebRespContent
     Write-Log "AUTHOR: $($JsonResp.user.permalink)"
     Write-Log "IMAGE URL: $($JsonResp.assets[0].image_url)"
+    Write-Log "ORIGINAL SIZE: $($JsonResp.assets[0].Width)x$($JsonResp.assets[0].Height)"
     $ImageUrl = $JsonResp.assets[0].image_url
     return @{Url=$ImageUrl; Width=$JsonResp.assets[0].Width; Height=$JsonResp.assets[0].Height}
 }
@@ -113,7 +114,7 @@ function Get-MonitorsSize {
 }
 
 function Remove-TemporaryFiles {
-    Remove-Item "$TmpFolderPath/*"
+    Remove-Item "$TmpFolderPath\*"
 }
 
 function Fit-ImageToScreen{
@@ -132,21 +133,26 @@ function Fit-ImageToScreen{
     $ImgName = Get-ImageName $ImgPath
     $bluredPath = "$TmpFolderPath\tmp_blured_$ImgName.jpg"
     $cropedpath = "$TmpFolderPath\tmp_composited_$ImgName.jpg"
+    $toobigPath = "$TmpFolderPath\tmp_toobig_$ImgName.jpg"
+    $destinationPath = "$ImgFolderPath\$ImgName.jpg"
 
     $MonitorFormat = Get-FormatIsh $Width $Height
     [float]$MonitorRatio = 0.0
     [float]$ImageRatio = 0.0
     $Sizing = "$ImgWidth"
 
+    $OriginalResized = $false
     if($MonitorFormat -eq 'Portrait') {
         # Shrinking image larger than screen
         if((Get-FormatIsh $ImgWidth $ImgHeight) -eq 'Portrait') {
             if($ImgHeight -gt $Height) {
-                magick.exe $ImgPath -resize "x$Height" -compress lossless $ImgPath
+                magick.exe $ImgPath -resize "x$Height" -compress lossless $toobigPath
+                 $OriginalResized = $true
             }
         } else {
             if($ImgWidth -gt $Width) {
-                magick.exe $ImgPath -resize "$Width" -compress lossless $ImgPath
+                magick.exe $ImgPath -resize "$Width" -compress lossless $toobigPath
+                $OriginalResized = $true
             }
         }
         # ---
@@ -163,11 +169,13 @@ function Fit-ImageToScreen{
         # Shrinking image larger than screen
         if((Get-FormatIsh $ImgWidth $ImgHeight) -eq 'Landscape') {
             if($ImgWidth -gt $Width) {
-                magick.exe $ImgPath -resize "$Width" -compress lossless $ImgPath
+                magick.exe $ImgPath -resize "$Width" -compress lossless $toobigPath
+                $OriginalResized = $true
             }
         } else {
             if($ImgHeight -gt $Height) {
-                magick.exe $ImgPath -resize "x$Height" -compress lossless $ImgPath
+                magick.exe $ImgPath -resize "x$Height" -compress lossless $toobigPath
+                $OriginalResized = $true
             }
         }
         # ---
@@ -183,20 +191,29 @@ function Fit-ImageToScreen{
     } else {
         if($ImgWidth -lt $ImgHeight) {
             if($ImgHeight -gt $Height) {
-                magick.exe $ImgPath -resize "x$Height" -compress lossless $ImgPath
+                magick.exe $ImgPath -resize "x$Height" -compress lossless $toobigPath
+                $OriginalResized = $true
             }
             $Sizing = "$Width"
         } else {
             if($ImgWidth -gt $Wdith) {
-                magick.exe $ImgPath -resize "$Width" -compress lossless $ImgPath
+                magick.exe $ImgPath -resize "$Width" -compress lossless $toobigPath
+                $OriginalResized = $true
             }
             $Sizing = "x$Height"
         }
     }
     
-    magick.exe $ImgPath -define filter:blur=30 -resize $Sizing -compress lossless $bluredPath
-    magick.exe $bluredPath -gravity center -crop "${Width}x$Height+0+0" -compress lossless $cropedpath
-    magick.exe composite -gravity center $ImgPath $cropedpath -compress lossless $ImgPath
+    if($OriginalResized) {
+        magick.exe $toobigPath -resize $Sizing -blur 0x20 -compress lossless $bluredPath
+        magick.exe $bluredPath -gravity center -crop "${Width}x$Height+0+0" -compress lossless $cropedpath
+        magick.exe composite -gravity center $toobigPath $cropedpath -compress lossless $destinationPath
+    } else {
+        magick.exe $ImgPath -resize $Sizing -blur 0x20 -compress lossless $bluredPath
+        magick.exe $bluredPath -gravity center -crop "${Width}x$Height+0+0" -compress lossless $cropedpath
+        magick.exe composite -gravity center $ImgPath $cropedpath -compress lossless $destinationPath
+    }
+
 }
 
 
@@ -213,10 +230,10 @@ function Install-Wallpaper {
     $Name = Get-ImageFullname -Path $Path
     $Extension = Get-ImageExtension -Name $Name
     Write-Log("NEW NAME: $RandomId.$Extension")
-    $DestinationPath = "$ImgFolderPath\$RandomId.$Extension"
+    $DestinationPath = "$TmpFolderPath\$RandomId.$Extension"
     while(Test-Path -Path $DestinationPath) {
         $RandomId = Get-Random -Minimum 1073741824
-        $DestinationPath = "$ImgFolderPath\$RandomId.$Extension"
+        $DestinationPath = "$TmpFolderPath\$RandomId.$Extension"
     }
 
     if($Remote) {
@@ -240,7 +257,7 @@ function Install-Wallpaper {
 function Clean-ImageDirectory {
     [CmdletBinding()]
     Param()
-    Remove-Item "$ImgFolderPath/*"
+    Remove-Item "$ImgFolderPath\*"
 
 }
 
