@@ -235,6 +235,7 @@ function Clean-ImageDirectory {
 }
 
 # Main function
+Configure-Folder
 Clean-ImageDirectory
 for($i = 0; $i -lt $NumberOfImages; $i++) {
     $Wallpaper = Get-RandomWallpaperUrl
