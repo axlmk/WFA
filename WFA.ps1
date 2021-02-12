@@ -126,10 +126,12 @@ function Fit-ImageToScreen{
         [Parameter(Mandatory)]
         [int]$ImgHeight
     )
+
     # Temporary dealing with only one monitor size
     $MonitorSize = Get-MonitorsSize
     $Width = $MonitorSize['Width']
     $Height = $MonitorSize['Height']
+    
     $ImgName = Get-ImageName $ImgPath
     $bluredPath = "$TmpFolderPath\tmp_blured_$ImgName.jpg"
     $cropedpath = "$TmpFolderPath\tmp_composited_$ImgName.jpg"
@@ -139,68 +141,39 @@ function Fit-ImageToScreen{
     $MonitorFormat = Get-FormatIsh $Width $Height
     [float]$MonitorRatio = 0.0
     [float]$ImageRatio = 0.0
-    $Sizing = "$ImgWidth"
 
     $OriginalResized = $false
     if($MonitorFormat -eq 'Portrait') {
-        # Shrinking image larger than screen
-        if((Get-FormatIsh $ImgWidth $ImgHeight) -eq 'Portrait') {
-            if($ImgHeight -gt $Height) {
-                magick.exe $ImgPath -resize "x$Height" -compress lossless $toobigPath
-                 $OriginalResized = $true
-            }
-        } else {
-            if($ImgWidth -gt $Width) {
-                magick.exe $ImgPath -resize "$Width" -compress lossless $toobigPath
-                $OriginalResized = $true
-            }
-        }
-        # ---
         $MonitorRatio = $Height / $Width
         $ImageRatio = $ImgHeight / $ImgWidth
-        if($ImageRatio -ge $MonitorRatio) {
-            if($ImgWidth -lt $Width) {
-                $Sizing = "$Width"
-            }
-        } else {
-            $Sizing = "x$Height"
-        }
-    } elseif($MonitorFormat -eq 'Landscape') {
-        # Shrinking image larger than screen
-        if((Get-FormatIsh $ImgWidth $ImgHeight) -eq 'Landscape') {
-            if($ImgWidth -gt $Width) {
-                magick.exe $ImgPath -resize "$Width" -compress lossless $toobigPath
-                $OriginalResized = $true
-            }
-        } else {
-            if($ImgHeight -gt $Height) {
-                magick.exe $ImgPath -resize "x$Height" -compress lossless $toobigPath
-                $OriginalResized = $true
-            }
-        }
-        # ---
-        $MonitorRatio = $Width / $Height
-        $ImageRatio = $ImgWidth / $ImgHeight
-        if($ImageRatio -ge $MonitorRatio) {
-            if($ImgHeight -lt $Height) {
-                $Sizing = "x$Height"
-            }
-        } else {
-                $Sizing = "$Width"
-        }
-    } else {
-        if($ImgWidth -lt $ImgHeight) {
+        if($ImageRatio -gt $MonitorRatio) {
             if($ImgHeight -gt $Height) {
                 magick.exe $ImgPath -resize "x$Height" -compress lossless $toobigPath
                 $OriginalResized = $true
             }
             $Sizing = "$Width"
         } else {
-            if($ImgWidth -gt $Wdith) {
+            if($ImgWidth -gt $Width) {
                 magick.exe $ImgPath -resize "$Width" -compress lossless $toobigPath
                 $OriginalResized = $true
             }
             $Sizing = "x$Height"
+        }
+    } else { # landscape and square
+        $MonitorRatio = $Width / $Height
+        $ImageRatio = $ImgWidth / $ImgHeight
+        if($ImageRatio -gt $MonitorRatio) {
+            if($ImgWidth -gt $Width) {
+                magick.exe $ImgPath -resize "$Width" -compress lossless $toobigPath
+                $OriginalResized = $true
+            }
+            $Sizing = "x$Height"
+        } else {
+            if($ImgHeight -gt $Height) {
+                magick.exe $ImgPath -resize "x$Height" -compress lossless $toobigPath
+                $OriginalResized = $true
+            }
+            $Sizing = "$Width"
         }
     }
     
