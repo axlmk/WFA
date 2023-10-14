@@ -12,7 +12,7 @@ int main(int argc, char* argv[]) {
 	WallpaperManager wm;
 	int max = 6;
 
-	if(argc == 2) {
+	if (argc == 2) {
 		max = atoi(argv[1]);
 	}
 
@@ -24,7 +24,7 @@ int main(int argc, char* argv[]) {
 	wm.changeLeft(img);
 	return 0;
 
-	for(int i = 0; i < max; i++) {
+	for (int i = 0; i < max; i++) {
 		Image *img = imgD.getNewImage();
 		if(img != nullptr) {
 			imgD.downloadImage(img);
