@@ -1,6 +1,5 @@
 #pragma once
 #include "utils.h"
-#include <atlstr.h>
 
 enum class MonitorFormat {
 	LANDSCAPE,

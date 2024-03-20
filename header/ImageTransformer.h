@@ -1,6 +1,6 @@
 #pragma once
 #include "utils.h"
-#include "Magick++.h"
+#include <Magick++.h>
 #include "Image.h"
 
 class ImageTransformer {
@@ -27,5 +27,5 @@ class ImageTransformer {
 		// If the original image doesn't fit perfectly with the monitor's dimensions
 		//a blured background image is created and croped to corresponds to these dimensions.
 		// Once done, the original image is added upong it.
-		void ImageTransformer::transform(Image *img, int screenWidth, int screenHeight);
+		void transform(Image *img, int screenWidth, int screenHeight);
 };

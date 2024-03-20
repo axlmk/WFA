@@ -1,2 +1,6 @@
 *test*
 .vscode
+temp
+*.exe
+*.o
+build

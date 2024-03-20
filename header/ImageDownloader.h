@@ -1,11 +1,9 @@
 #pragma once
 
-#include <iostream>
+#include "utils.h"
 #include <fstream>
 #include <time.h>
-#include <curl\curl.h>
 #include <nlohmann\json.hpp>
-#include "utils.h"
 #include "Image.h"
 
 using json = nlohmann::json;

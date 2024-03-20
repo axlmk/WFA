@@ -1,7 +1,7 @@
 #include "../header/ImageTransformer.h"
 
 ImageTransformer::ImageTransformer() {
-	Magick::InitializeMagick(nullptr);
+	Magick::InitializeMagick("");
 	m_imageFolder = fs::current_path() / "image";
 }
 
@@ -65,7 +65,7 @@ Magick::Image ImageTransformer::createBackground(Magick::Image *original, int wi
 	spdlog::debug("The size chosen to resize the image is: {}", size);
 	Magick::Geometry newDimensions(size);
 
-	background.resize(newDimensions, Magick::TriangleFilter, 40);
+	background.resize(newDimensions);
 	spdlog::debug("The size resized image has the following dimensions: {}x{}",
 		background.columns(),
 		background.rows());

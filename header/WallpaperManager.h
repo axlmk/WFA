@@ -1,8 +1,10 @@
 #pragma once
-#include <vector>
-#include <shobjidl_core.h>
-#include <atlstr.h>
 #include "utils.h"
+
+#include <vector>
+#include <stringapiset.h>
+#include <shobjidl.h>
+
 #include "Monitor.h"
 #include "Image.h"
 

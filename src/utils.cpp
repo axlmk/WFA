@@ -1,10 +1,13 @@
 #include "../header/utils.h"
 
-LPWSTR std2lw(std::string str) {
-	USES_CONVERSION_EX;
-	return A2W_EX(str.c_str(), str.length());
+LPWSTR str2lp(std::string str) {
+	LPWSTR a = (LPWSTR)str.c_str();
+	return a;
 }
 
-std::string lw2str(LPWSTR str) {
-	return CW2A(str);
+std::string lp2str(LPWSTR str) {
+	int strLength = WideCharToMultiByte(CP_UTF8, 0, str, -1, nullptr, 0, nullptr, nullptr); 
+    std::string stri(strLength, 0); 
+    WideCharToMultiByte(CP_UTF8, 0, str, -1, &stri[0], strLength, nullptr, nullptr); 
+    return stri; 
 }

@@ -26,17 +26,17 @@ void WallpaperManager::setMonitors() {
 		m_monitors.clear();
 	}
 
-	for(int i = 0; i < n; i++) {
+	for(UINT i = 0; i < n; i++) {
 		LPWSTR id = nullptr;
 		RECT rect;
 		Monitor monitor;
 		std::string strId;
 
-		m_wallpaper->GetMonitorDevicePathAt((UINT)i, &id);
+		m_wallpaper->GetMonitorDevicePathAt(i, &id);
 		if(id) {
 			m_wallpaper->GetMonitorRECT(id, &rect);
 
-			std::string idS = lw2str(id);
+			std::string idS = lp2str(id);
 			monitor.setId(idS);
 			monitor.setRect(rect);
 
@@ -60,9 +60,9 @@ void WallpaperManager::displayMonitors() {
 
 void WallpaperManager::setImageOnWallpaper(Image *img, Monitor monitor) {
 	std::string idS = monitor.getId();
-	LPWSTR id = std2lw(idS);
+	LPWSTR id = str2lp(idS);
 	fs::path path = img->getPath();
-	LPWSTR pathLw = std2lw(path.string());
+	LPWSTR pathLw = str2lp(path.string());
 	m_wallpaper->SetWallpaper(id, pathLw);
 }
 

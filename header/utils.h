@@ -1,11 +1,15 @@
 #pragma once
-
+#define NTDDI_VERSION NTDDI_WIN8 // required to use the IDesktopWallpaper
+#include <curl\curl.h>
+#include <Windows.h>
+#include <initguid.h>
+#include <iostream>
 #include <filesystem>
 #include <exception>
-#include <atlstr.h>
-#include "spdlog/spdlog.h"
+
+#include "../header/Logging.h"
 
 namespace fs = std::filesystem;
 
-LPWSTR std2lw(std::string str);
-std::string lw2str(LPWSTR str);
+LPWSTR str2lp(std::string str);
+std::string lp2str(LPWSTR str);
