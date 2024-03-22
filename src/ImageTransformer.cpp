@@ -1,5 +1,11 @@
 #include "../header/ImageTransformer.h"
 
+ImageTransformer ImageTransformer::mInstance;
+
+ImageTransformer& ImageTransformer::Get() {
+	return mInstance;
+}
+
 ImageTransformer::ImageTransformer() {
 	Magick::InitializeMagick("");
 	m_imageFolder = fs::current_path() / "image";

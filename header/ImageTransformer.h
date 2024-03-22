@@ -18,10 +18,18 @@ class ImageTransformer {
 
 		// Store the final image on the disk
 		bool storeImage(Magick::Image *composed, Image *img);
-	public:
 
 	    // Set up the current path as well as Magick properties
 	    ImageTransformer();
+
+		static ImageTransformer mInstance;
+
+	public:
+
+		// Singleton
+		ImageTransformer (const &ImageTransformer) = delete;
+		ImageTransformer operator=(ImageTransformer) = delete;
+		static ImageTransformer& Get(); 
 
 		// Get an image formatted for the monitor's dimension
 		// If the original image doesn't fit perfectly with the monitor's dimensions

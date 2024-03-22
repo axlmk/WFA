@@ -1,5 +1,7 @@
 #include "../header/WallpaperManager.h"
 
+WallpaperManager WallpaperManager::mInstance;
+
 WallpaperManager::WallpaperManager() {
 	HRESULT hr;
 	hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED | COINIT_DISABLE_OLE1DDE);
@@ -40,21 +42,43 @@ void WallpaperManager::setMonitors() {
 			monitor.setId(idS);
 			monitor.setRect(rect);
 
-			m_monitors.push_back(monitor);
+			m_monitors[idS] = monitor;
 		} else {
 			Log::log("The monitor's ID has not been loaded properly", Log::ERR);
 		}
 	}
 }
 
-int WallpaperManager::GetMonitorCount() {
+WallpaperManager::~WallpaperManager() {
+	m_wallpaper->Release();
+	CoUninitialize();
+}
+
+WallpaperManager& WallpaperManager::Get() {
+	return mInstance;
+}
+
+int WallpaperManager::GetMonitorsCount() {
 	return m_monitors.size();
+}
+
+std::vector<std::string> WallpaperManager::GetMonitorsIDs() {
+	std::vector<std::string> monitorsIDs;
+	for(auto ptr = m_monitors.begin(); ptr != m_monitors.end(); ptr++) {
+		monitorsIDs.push_back(ptr->first);
+	}
+	return monitorsIDs;
+}
+
+std::tuple<int, int> WallpaperManager::GetMonitorDimensions(std::string ID) {
+	return {m_monitors[ID].getWidth(), m_monitors[ID].getHeight()};
 }
 
 void WallpaperManager::displayMonitors() {
 	int it = 0;
-	for(Monitor i : m_monitors) {
-		Log::log("Monitor number " + std::to_string(it++) + "\n\t" + i.toString() + "\n");
+	for(auto ptr = m_monitors.begin(); ptr != m_monitors.end(); ptr++) {
+		Log::log("Monitor number " + std::to_string(it++) + "\n\t" + ptr->second.toString() + "\n");
+		it++;
 	}
 }
 
@@ -66,11 +90,6 @@ void WallpaperManager::setImageOnWallpaper(Image *img, Monitor monitor) {
 	m_wallpaper->SetWallpaper(id, pathLw);
 }
 
-WallpaperManager::~WallpaperManager() {
-	m_wallpaper->Release();
-	CoUninitialize();
-}
-
-void WallpaperManager::changeLeft(Image *img) {
-	setImageOnWallpaper(img, m_monitors.at(1));
-}
+// void WallpaperManager::changeLeft(Image *img) {
+// 	setImageOnWallpaper(img, m_monitors.at(1));
+// }

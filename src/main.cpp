@@ -7,32 +7,19 @@
 int main(int argc, char* argv[]) {
 	Log::InitiazeLogLevel(Log::TRACE);
 
-	ImageDownloader imgD;
-	ImageTransformer imgT;
-	WallpaperManager wm;
-	int max = 6;
-
-	if (argc == 2) {
-		max = atoi(argv[1]);
-	}
+	ImageDownloader &imgD = ImageDownloader::Get();
+	ImageTransformer &imgT = ImageTransformer::Get();
+	WallpaperManager &wm = WallpaperManager::Get();
 	
-	Log::log("Number of monitors detected: " + std::to_string(wm.GetMonitorCount()));
+	Log::log("Number of monitors detected: " + std::to_string(wm.GetMonitorsCount()));
 	wm.displayMonitors();
-	Image *img = imgD.getNewImage();
-	imgD.downloadImage(img);
-	imgT.transform(img, 2560, 1440);
-	wm.changeLeft(img);
-	return 0;
-	// for (int i = 0; i < max; i++) {
-	// 	Image *img = imgD.getNewImage();
-	// 	if(img != nullptr) {
-	// 		imgD.downloadImage(img);
-	// 		imgT.transform(img, 2560, 1440);
-	// 		imgD.removeImage(img);
-	// 	} else {
-	// 		logs.log("failed", Logs::ERR);
-	// 	}
-	// 	logs.log("- -  - - -- - - -- -- - -  - - ---  - -- - ", Logs::DEBUG);
-	// }
+
+	auto monitorsIDs {wm.GetMonitorsIDs()};
+	for(auto i = monitorsIDs.begin(); i < monitorsIDs.end(); i++) {
+		Image *img = imgD.getNewImage();
+		imgD.downloadImage(img);
+		std::tuple<int, int> monitorDim {wm.GetMonitorDimensions(*i)};
+		imgT.transform(img, std::get<0>(monitorDim), std::get<1>(monitorDim));
+	}
 	return 0;
 }

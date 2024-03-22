@@ -41,10 +41,18 @@ class ImageDownloader {
 		// Take the image data downloaded from a website, store it into a file and set up the 
 		// image object
 		bool storeImage(Image *img, std::string const rawContent);
-	
-	public:
+
+		// Singleton
 		ImageDownloader();
 		~ImageDownloader();
+		static ImageDownloader mInstance;
+	
+	public:
+
+		// Singleton
+		ImageDownloader(const &ImageDownloader) = delete;
+		ImageDownloader operator=(ImageDownloader) = delete;
+		static ImageDownloader& Get();
 
 		// Get an entire new image object loaded randomdly from a website
 		// Currently only artstation is available

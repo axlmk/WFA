@@ -9,8 +9,8 @@ enum class MonitorFormat {
 
 class Monitor {
 	private:
-	    RECT m_rect = {0, 0, 0, 0};
-		MonitorFormat m_format = MonitorFormat::LANDSCAPE;
+	    RECT m_rect {0, 0, 0, 0};
+		MonitorFormat m_format {MonitorFormat::LANDSCAPE};
 		std::string m_id;
 	public:
 	    int getWidth();

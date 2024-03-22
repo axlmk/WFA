@@ -1,5 +1,11 @@
 #include "../header/ImageDownloader.h"
 
+ImageDownloader ImageDownloader::mInstance;
+
+ImageDownloader& ImageDownloader::Get() {
+	return mInstance;
+}
+
 ImageDownloader::ImageDownloader() {
 
 	// Initialize the curl library to be able to use it later
