@@ -3,9 +3,10 @@
 #include "../header/ImageDownloader.h"
 #include "../header/ImageTransformer.h"
 
-int main(int argc, char* argv[]) {
 
-	Logs logs(Logs::TRACE);
+int main(int argc, char* argv[]) {
+	Log::InitiazeLogLevel(Log::TRACE);
+
 	ImageDownloader imgD;
 	ImageTransformer imgT;
 	WallpaperManager wm;
@@ -15,13 +16,13 @@ int main(int argc, char* argv[]) {
 		max = atoi(argv[1]);
 	}
 	
-	logs.log("Number of monitors detected: " + std::to_string(wm.GetMonitorCount()), Logs::TRACE);
+	Log::log("Number of monitors detected: " + std::to_string(wm.GetMonitorCount()));
 	wm.displayMonitors();
 	Image *img = imgD.getNewImage();
 	imgD.downloadImage(img);
 	imgT.transform(img, 2560, 1440);
-	// wm.changeLeft(img);
-	// return 0;
+	wm.changeLeft(img);
+	return 0;
 	// for (int i = 0; i < max; i++) {
 	// 	Image *img = imgD.getNewImage();
 	// 	if(img != nullptr) {

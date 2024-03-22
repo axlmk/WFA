@@ -4,13 +4,13 @@ WallpaperManager::WallpaperManager() {
 	HRESULT hr;
 	hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED | COINIT_DISABLE_OLE1DDE);
 	if(FAILED(hr)) {
-		spdlog::error("The COM library cannot be loaded");
+		Log::log("The COM library cannot be loaded", Log::ERR);
 		throw std::runtime_error("COM library could not be loaded");
 	}
 	m_wallpaper = nullptr;
 	hr = CoCreateInstance(CLSID_DesktopWallpaper, nullptr, CLSCTX_ALL, IID_IDesktopWallpaper, reinterpret_cast<void**>(&m_wallpaper));
 	if(FAILED(hr) || m_wallpaper == nullptr) {
-		spdlog::error("The DesktopWallpaper object could not be created");
+		Log::log("The DesktopWallpaper object could not be created", Log::ERR);
 		throw std::runtime_error("Cannot create COM object");
 	}
 
@@ -42,7 +42,7 @@ void WallpaperManager::setMonitors() {
 
 			m_monitors.push_back(monitor);
 		} else {
-			spdlog::error("The id has not been loaded properly");
+			Log::log("The monitor's ID has not been loaded properly", Log::ERR);
 		}
 	}
 }
@@ -54,7 +54,7 @@ int WallpaperManager::GetMonitorCount() {
 void WallpaperManager::displayMonitors() {
 	int it = 0;
 	for(Monitor i : m_monitors) {
-		spdlog::debug("Monitor number {}\n\t{}\n", it++, i.toString());
+		Log::log("Monitor number " + std::to_string(it++) + "\n\t" + i.toString() + "\n");
 	}
 }
 

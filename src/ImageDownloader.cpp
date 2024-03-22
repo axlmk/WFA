@@ -5,7 +5,7 @@ ImageDownloader::ImageDownloader() {
 	// Initialize the curl library to be able to use it later
 	m_curl = curl_easy_init();
 	if(!m_curl) {
-		spdlog::critical("Curl failed creating Curl object");
+		Log::log("Curl failed creating Curl object", Log::ERR);
 	}
 	m_tempFolder = fs::current_path() / "temp";
 }
@@ -26,10 +26,10 @@ size_t ImageDownloader::storeToMemoryCB(void *contents, size_t size, size_t nmem
 struct tm ImageDownloader::arstationDateToTm(std::string date) {
 	struct tm tm;
 	if(sscanf(date.c_str(), "%d-%d-%dT%d:%d:%d", &tm.tm_year, &tm.tm_mon, &tm.tm_mday, &tm.tm_hour, &tm.tm_min, &tm.tm_sec) != 6) {
-		spdlog::error("Date's string could not be parsed correctly: {}", date);
+		Log::log("Date's string could not be parsed correctly: " + date, Log::ERR);
 		throw std::invalid_argument("The provided date doesn't have the good format");
 	} 
-	spdlog::trace("Date's string has been parsed successfully: {}", date);
+	Log::log("Date's string has been parsed successfully: " + date, Log::TRACE);
 	return tm;
 }
 
@@ -50,10 +50,10 @@ Image *ImageDownloader::jsonToImage(json const j) {
 			j["user"]["username"]
 		}; img->setAuthor(author);
 	} catch(json::type_error const &e) {
-		spdlog::error("Json file doesn't have the good format.");
+		Log::log("Json file doesn't have the good format.", Log::ERR);
 		return nullptr;
 	} catch(std::invalid_argument const &e) {
-		spdlog::error(e.what());
+		Log::log(e.what(), Log::ERR);
 		return nullptr;
 	}
 
@@ -69,7 +69,7 @@ Image *ImageDownloader::jsonToImage(json const j) {
 	} catch(std::invalid_argument const &e) {
 		return nullptr;
 	} catch(json::type_error const &e) {
-		spdlog::error("Json file doesn't have the good format.");
+		Log::log("Json file doesn't have the good format.", Log::ERR);
 		return nullptr;
 	}
 
@@ -79,7 +79,7 @@ Image *ImageDownloader::jsonToImage(json const j) {
 Image *ImageDownloader::getNewImage() {
 	auto rawContent = webRequest(m_siteLink);
 	if(rawContent.empty()) {
-		spdlog::debug("The web request returned null");
+		Log::log("The web request returned null");
 		return nullptr;
 	}
 
@@ -87,9 +87,9 @@ Image *ImageDownloader::getNewImage() {
 	try {
 		content = json::parse(rawContent);
 	} catch(json::exception const& e) {
-		spdlog::error("The raw content is not a JSON format. The image object could not be generated");
+		Log::log("The raw content is not a JSON format. The image object could not be generated", Log::ERR);
 		return nullptr;
-	} spdlog::trace("The raw content has successfully been parsed as a JSON format");
+	} Log::log("The raw content has successfully been parsed as a JSON format", Log::TRACE);
 
 	return jsonToImage(content);
 }
@@ -98,20 +98,20 @@ std::string ImageDownloader::webRequest(std::string link) {
 	CURLcode ret;
 	std::string rawContent;
 
-	spdlog::debug("The queried link: {}", link);
+	Log::log("The queried link: " + link, Log::TRACE);
 	curl_easy_setopt(m_curl, CURLOPT_URL, link.c_str());
 	curl_easy_setopt(m_curl, CURLOPT_WRITEFUNCTION, storeToMemoryCB);
 	curl_easy_setopt(m_curl, CURLOPT_WRITEDATA, &rawContent);
 	curl_easy_setopt(m_curl, CURLOPT_FOLLOWLOCATION, 1L);
-	spdlog::trace("Curl options are set");
+	Log::log("Curl options are set", Log::TRACE);
 
 	ret = curl_easy_perform(m_curl);
 
 	if(ret != CURLE_OK) {
-		spdlog::error("Curl couldn't perform the request: {}", curl_easy_strerror(ret));
+		Log::log("Curl couldn't perform the request: " + std::string(curl_easy_strerror(ret)), Log::ERR);
 		return "";
 	}
-	spdlog::trace("Curl request has been performed successfully");
+	Log::log("Curl request has been performed successfully", Log::TRACE);
 	return rawContent;
 }
 
@@ -130,22 +130,22 @@ int ImageDownloader::downloadImage(Image *image) {
 bool ImageDownloader::storeImage(Image *img, std::string const rawContent) {
 	if(!fs::exists(m_tempFolder)) {
 		if(!fs::create_directory(m_tempFolder)) {
-			spdlog::error("The directory couldn't have been created");
+			Log::log("The directory couldn't have been created", Log::ERR);
 			return false;
 		}
 	} else if(!fs::is_directory(m_tempFolder)) {
-		spdlog::error("The folder cannot be created because a file with the same name already exists");
+		Log::log("The folder cannot be created because a file with the same name already exists", Log::ERR);
 		return false;
 	}
 
 	fs::path pOriginal = m_tempFolder;
 	pOriginal /= img->getFilename();
-	spdlog::debug("The original path of the downloaded image: {}", pOriginal.string());
+	Log::log("The original path of the downloaded image: " + pOriginal.string());
 	img->setPath(pOriginal);
 
 	std::ofstream original(pOriginal, ios::binary);
 	if(!original) {
-		spdlog::error("The file could not be opened correctly: {}", pOriginal.string());
+		Log::log("The file could not be opened correctly: " + pOriginal.string(), Log::ERR);
 		return false;
 	}
 	original << rawContent;
@@ -155,6 +155,6 @@ bool ImageDownloader::storeImage(Image *img, std::string const rawContent) {
 void ImageDownloader::removeImage(Image *img) {
 	fs::path tempFolder = m_tempFolder / img->getFilename();
 	if(!fs::remove(tempFolder)) {
-		spdlog::error("The provided image doesn't exist");
+		Log::log("The provided image doesn't exist", Log::ERR);
 	}
 }

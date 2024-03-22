@@ -19,7 +19,7 @@ void Image::setImage(ImageInfo image) {
 		throw std::invalid_argument("The image extension is unvalid");
 	}
 	m_filename = std::to_string(image.id) + "." + m_extension;
-	spdlog::debug("The filename of the image: {}", m_filename.string());
+	Log::log("The filename of the image: " + m_filename.string());
 	m_image = image;
 }
 
@@ -56,7 +56,7 @@ std::string Image::getExtension(std::string filename) {
 	auto foundDot = filename.find_last_of(".");
 	auto foundQuestionMark = filename.find_last_of("?");
 	if(foundDot == std::string::npos || foundQuestionMark == std::string::npos) {
-		spdlog::error("The filename doesn't contain a recognizable extension");
+		Log::log("The filename doesn't contain a recognizable extension", Log::ERR);
 		return "";
 	}
 
@@ -65,7 +65,7 @@ std::string Image::getExtension(std::string filename) {
 		if(extension == i)
 			return i;
 
-	} spdlog::error("The following extension is not allowed: {}", extension);
+	} Log::log("The following extension is not allowed: " + extension, Log::ERR);
 	return "";
 }
 
