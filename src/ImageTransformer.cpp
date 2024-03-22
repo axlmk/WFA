@@ -24,12 +24,15 @@ void ImageTransformer::transform(Image *img, int screenWidth, int screenHeight) 
 		if(width > screenWidth || height > screenHeight) {
 			original.resize(std::to_string(screenWidth) + "x" +std::to_string(screenHeight));
 		}
+
+		background.gaussianBlur(10, 10);
+
 		Magick::Image composed = background;
 		composed.composite(original, Magick::CenterGravity, Magick::OverCompositeOp);
 		storeImage(&composed, img);
 		return;
 	}
-	Log::log("The image suits the montinor, therefore it hasn't been transformed", Log::TRACE);
+	Log::log("The image suits the monitor, therefore it hasn't been transformed", Log::TRACE);
 }
 
 bool ImageTransformer::storeImage(Magick::Image *composed, Image *img) {
