@@ -1,4 +1,4 @@
-.PHONY: all clean
+.PHONY: all clean erase
 
 # Folders
 BUILD_DIR:=build
@@ -32,11 +32,13 @@ $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp | $(BUILD_DIR)
 $(BUILD_DIR):
 	powershell New-Item -ItemType Directory $(BUILD_DIR)
 
-clean:
-# 	-powershell Remove-Item -Path "$(BUILD_DIR)\*.o" -Force
+clean: erase
+	-powershell Remove-Item -Path "$(BUILD_DIR)\*.o" -Force
 	-powershell Remove-Item -Path "$(TARGET)" -Force
 	-powershell Remove-Item -Path "$(BUILD_DIR)" -Recurse -Force
-	-powershell Remove-Item -Path "temp\*" -Force
 	-powershell Remove-Item -Path "temp"
-	-powershell Remove-Item -Path "image\*" -Force
 	-powershell Remove-Item -Path "image"
+
+erase:
+	-powershell Remove-Item -Path "temp\*" -Force
+	-powershell Remove-Item -Path "image\*" -Force
