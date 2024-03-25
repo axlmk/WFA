@@ -27,7 +27,7 @@ class ImageTransformer {
 	public:
 
 		// Singleton
-		ImageTransformer (const &ImageTransformer) = delete;
+		ImageTransformer (const ImageTransformer&) = delete;
 		ImageTransformer operator=(ImageTransformer) = delete;
 		static ImageTransformer& Get(); 
 

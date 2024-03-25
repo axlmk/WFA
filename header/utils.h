@@ -1,8 +1,5 @@
 #pragma once
 #define NTDDI_VERSION NTDDI_WIN8 // required to use the IDesktopWallpaper
-#include <curl\curl.h>
-#include <Windows.h>
-#include <initguid.h>
 #include <iostream>
 #include <filesystem>
 #include <exception>
@@ -11,5 +8,8 @@
 
 namespace fs = std::filesystem;
 
-LPWSTR str2lp(std::string str);
-std::string lp2str(LPWSTR str);
+// Convert a string to a wide string. Required by some win32 functions
+LPCWSTR str2lp(const std::string& str);
+
+// Narrow a wide string to a normal string
+std::string lp2str(const LPWSTR& str);

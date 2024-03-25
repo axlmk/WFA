@@ -2,8 +2,12 @@
 #include "utils.h"
 
 #include <vector>
+
+#include <Windows.h>
+#include <initguid.h>
 #include <stringapiset.h>
 #include <shobjidl.h>
+#include <comdef.h>
 
 #include "Monitor.h"
 #include "Image.h"
@@ -25,11 +29,12 @@ class WallpaperManager {
 		~WallpaperManager();
 	public:
 
+		// Singleton
 		WallpaperManager(const WallpaperManager&) = delete;
 		WallpaperManager operator=(WallpaperManager) = delete;
-
 		static WallpaperManager& Get();
 
+		// Get all the monitors' IDs
 		std::vector<std::string> GetMonitorsIDs();
 
 		// <widht, height>
@@ -38,13 +43,15 @@ class WallpaperManager {
 		// Get the number of monitors detected
 		int GetMonitorsCount();
 	
-		// temp 
-		// void changeLeft(Image *img);
-
 		// A setting up function filling the m_monitors vector with useful information obtained from the COM library
 		void setMonitors();
 
-		void setImageOnWallpaper(Image *img, Monitor monitor);
+		// Change the wallpaper on the specified monitor
+		void setImageOnWallpaper(Image *img, std::string MonitorID);
 
+		// Print some data about each monitors detected
 		void displayMonitors();
+
+		// Convert the HRESULT from the win32api to a readable message
+		std::string HRESULT2str(HRESULT hr);
 };

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "utils.h"
+#include <curl\curl.h>
 #include <fstream>
 #include <time.h>
 #include <nlohmann\json.hpp>
@@ -50,7 +51,7 @@ class ImageDownloader {
 	public:
 
 		// Singleton
-		ImageDownloader(const &ImageDownloader) = delete;
+		ImageDownloader(const ImageDownloader&) = delete;
 		ImageDownloader operator=(ImageDownloader) = delete;
 		static ImageDownloader& Get();
 

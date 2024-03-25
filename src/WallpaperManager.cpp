@@ -82,14 +82,26 @@ void WallpaperManager::displayMonitors() {
 	}
 }
 
-void WallpaperManager::setImageOnWallpaper(Image *img, Monitor monitor) {
-	std::string idS = monitor.getId();
-	LPWSTR id = str2lp(idS);
-	fs::path path = img->getPath();
-	LPWSTR pathLw = str2lp(path.string());
-	m_wallpaper->SetWallpaper(id, pathLw);
+void WallpaperManager::setImageOnWallpaper(Image *img, std::string MonitorID) {
+	LPCWSTR id = str2lp(MonitorID);
+	LPCWSTR pathLw = str2lp(img->getPath().string());
+	HRESULT hr = m_wallpaper->SetWallpaper(id, pathLw);
+	if(hr != S_OK) {
+		Log::log(HRESULT2str(hr), Log::ERR);
+	} else {
+		Log::log("The wallpaper has successfully been set");
+	}
 }
 
-// void WallpaperManager::changeLeft(Image *img) {
-// 	setImageOnWallpaper(img, m_monitors.at(1));
-// }
+std::string WallpaperManager::HRESULT2str(HRESULT hr) {
+	LPSTR mB = nullptr;
+		FormatMessageA(
+        FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+        NULL,
+        hr,
+        MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+        reinterpret_cast<LPSTR>(&mB),
+        0,
+	NULL);
+	return mB;
+}
